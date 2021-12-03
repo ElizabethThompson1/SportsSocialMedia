@@ -1,3 +1,4 @@
 {
-    "mongoURI":"mongodb+srv://ElizabethThompson:Md102095@deevcodecluster1.pq552.mongodb.net/Deevcodecluster1?retryWrites=true&w=majority"
+    "mongoURI":"mongodb+srv://ElizabethThompson:Md102095@deevcodecluster1.pq552.mongodb.net/Deevcodecluster1?retryWrites=true&w=majority",
+    "JWT_SECRET": "jassdflerloel"
 }
