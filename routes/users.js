@@ -64,6 +64,25 @@ router.post("/login", async (req, res) => {
   }
 });
 
+router.put("/:id/follow" , async (req, res)=>{
+  if (req.body.userId !== req.params.id){
+    try{
+      const users = await users.findById(req.params.id);
+      const currentUser = await users.findById(req.body.userId);
+      if(!users.followers.includes(req.body.userId)){
+        await users.updateOne({$push:{followers: req.body.userId} });
+        await currentUser.updateOne({ $push:{followings: req.body.userId } });
+        res.status(200).json("user has been followed");
+      } else{
+        res.status(403).json("you already follow this user");
+      }
+    } catch (err) {
+      res.status(500).json(err);
+    }
+  } else {
+    res.status(403).json("you cannot follow yourself");
+  }
+});
 //* Get all users
 router.get("/", async (req, res) => {
   try {
