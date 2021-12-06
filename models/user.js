@@ -11,6 +11,7 @@ const userSchema = mongoose.Schema({
     required: true,
     minLength: 2,
     maxLength: 255,
+    friends: [{ type: Schema.Type.ObjectId, ref: 'Friends'}]
   },
   password: { type: String, required: true, minLength: 8, maxLength: 1024 },
   isAdmin: { type: Boolean, required: true },
@@ -23,7 +24,8 @@ userSchema.methods.generateAuthToken = function () {
       name: this.name,
       email: this.email,
       isAdmin: this.isAdmin,
-    },
+      
+    }, 
     config.get("JWT_SECRET")
   );
 };
