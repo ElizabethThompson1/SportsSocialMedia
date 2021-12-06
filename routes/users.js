@@ -64,10 +64,10 @@ router.post("/login", async (req, res) => {
   }
 });
 
-router.put("/:id/follow" , async (req, res)=>{
-  if (req.body.userId !== req.params.id){
+router.put("/:userId/follow" , async (req, res)=>{
+  if (req.body.userId !== req.params.userId){
     try{
-      const userToFollow = await User.findById(req.params.id);
+      const userToFollow = await User.findById(req.params.userId);
       const currentUser = await User.findById(req.body.userId);
       if (!userToFollow || !currentUser){
         console.log(" error, user doesn't exist")
@@ -85,10 +85,10 @@ router.put("/:id/follow" , async (req, res)=>{
   }
 });
 
-router.put("/:id/unfollow" , async (req, res)=>{
-  if (req.body.userId !== req.params.id){
+router.put("/:userId/unfollow" , async (req, res)=>{
+  if (req.body.userId !== req.params.userId){
     try{
-      const userToUnFollow = await User.findById(req.params.id);
+      const userToUnFollow = await User.findById(req.params.userId);
       const currentUser = await User.findById(req.body.userId);
       if (!userToUnFollow || !currentUser){
       console.log("you're not following the user")
