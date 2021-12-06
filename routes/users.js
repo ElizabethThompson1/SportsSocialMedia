@@ -67,15 +67,16 @@ router.post("/login", async (req, res) => {
 router.put("/:id/follow" , async (req, res)=>{
   if (req.body.userId !== req.params.id){
     try{
-      const users = await users.findById(req.params.id);
-      const currentUser = await users.findById(req.body.userId);
-      if(!users.followers.includes(req.body.userId)){
-        await users.updateOne({$push:{followers: req.body.userId} });
-        await currentUser.updateOne({ $push:{followings: req.body.id } });
-        res.status(200).json("user has been followed");
-      } else{
-        res.status(403).json("you already follow this user");
+      const userToFollow = await User.findById(req.params.id);
+      const currentUser = await User.findById(req.body.userId);
+      if (!userToFollow || !currentUser){
+        console.log(" error, user doesn't exist")
       }
+
+      currentUser.friends.push(userToFollow._id);
+      await currentUser.save();
+      return res.send(currentUser);
+      
     } catch (err) {
       res.status(500).json(err);
     }
@@ -87,20 +88,21 @@ router.put("/:id/follow" , async (req, res)=>{
 router.put("/:id/unfollow" , async (req, res)=>{
   if (req.body.userId !== req.params.id){
     try{
-      const users = await users.findById(req.params.id);
-      const currentUser = await users.findById(req.body.userId);
-      if(users.followers.includes(req.body.userId)){
-        await users.updateOne({$pull:{followers: req.body.userId} });
-        await currentUser.updateOne({ $pull:{followings: req.body.id } });
-        res.status(200).json("user has been unfollowed");
-      } else{
-        res.status(403).json("you dont follow this user");
+      const userToUnFollow = await User.findById(req.params.id);
+      const currentUser = await User.findById(req.body.userId);
+      if (!userToUnFollow || !currentUser){
+      console.log("you're not following the user")
       }
+
+      currentUser.friends.remove(userToUnFollow._id);
+      await currentUser.save();
+      return res.send(currentUser);
+      
     } catch (err) {
       res.status(500).json(err);
     }
   } else {
-    res.status(403).json("you cannot unfollow yourself");
+    res.status(403).json("you cannot follow yourself");
   }
 });
 //* Get all users

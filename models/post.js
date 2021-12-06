@@ -2,11 +2,7 @@ const Joi = require('joi');
 const mongoose = require('mongoose');
 
 
-const PostSchema = new mongoose.Schema({
-            userId: {
-                type:String,
-                required:true,
-            },
+const postSchema = new mongoose.Schema({
             desc:{
                 type:String,
                 max:500,
@@ -23,4 +19,5 @@ const PostSchema = new mongoose.Schema({
     );
    
 
-    module.exports = mongoose.model("Post", PostSchema);
+module.exports.postSchema = postSchema;
+module.exports.Post = mongoose.model("Post", postSchema);
