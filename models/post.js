@@ -13,7 +13,8 @@ const postSchema = new mongoose.Schema({
             like: {
                 type:Array,
                 default: [],
-            }     
+            },     
+            creationDate: {type: Date, default: Date.now()}
      },
             { timestamps: true }  
     );

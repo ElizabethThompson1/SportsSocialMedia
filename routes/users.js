@@ -1,8 +1,7 @@
-const { User, validateLogin, validateUser } = require("../models/user");
+const { User, validateLogin, validateUser, FriendRequest } = require("../models/user");
 
 const auth = require("../middleware/auth");
 const admin = require("../middleware/admin");
-
 const bcrypt = require("bcrypt");
 const express = require("express");
 const router = express.Router();
@@ -45,10 +44,12 @@ router.post("/register", async (req, res) => {
 router.post("/login", async (req, res) => {
   try {
     const { error } = validateLogin(req.body);
-    if (error) return res.status(400).send(error.details[0].message);
+    if (error) 
+      return res.status(400).send(error.details[0].message);
 
     let user = await User.findOne({ email: req.body.email });
-    if (!user) return res.status(400).send(`Invalid email or password.`);
+    if (!user)
+      return res.status(400).send(`Invalid email or password.`);
 
     const validPassword = await bcrypt.compare(
       req.body.password,
@@ -64,47 +65,76 @@ router.post("/login", async (req, res) => {
   }
 });
 
-router.put("/:userId/follow" , async (req, res)=>{
-  if (req.body.userId !== req.params.userId){
-    try{
-      const userToFollow = await User.findById(req.params.userId);
-      const currentUser = await User.findById(req.body.userId);
-      if (!userToFollow || !currentUser){
-        console.log(" error, user doesn't exist")
-      }
+// We need an endpoint that makes a firend request for a spcific user
+//
 
-      currentUser.friends.push(userToFollow._id);
-      await currentUser.save();
-      return res.send(currentUser);
-      
-    } catch (err) {
-      res.status(500).json(err);
-    }
-  } else {
-    res.status(403).json("you cannot follow yourself");
-  }
+router.post('/friends/:userToBefriendId/request', [auth], async (req, res) => {
+  const signedInUser = await User.findById(req.user._id);
+
+  const userToBefriend = await User.findById(req.params.userToBefriendId);
+
+  const friendRequest = new FriendRequest({
+    friendId: signedInUser._id
+  });
+
+  userToBefriend.friends.push(friendRequest);
+
+  await userToBefriend.save()
+
+  return res.send(userToBefriend);
+
 });
 
-router.put("/:userId/unfollow" , async (req, res)=>{
-  if (req.body.userId !== req.params.userId){
-    try{
-      const userToUnFollow = await User.findById(req.params.userId);
-      const currentUser = await User.findById(req.body.userId);
-      if (!userToUnFollow || !currentUser){
-      console.log("you're not following the user")
-      }
+// Write an endpoint where you can accept or decline a friend request
 
-      currentUser.friends.remove(userToUnFollow._id);
-      await currentUser.save();
-      return res.send(currentUser);
+
+
+
+
+
+// router.put("/:userId/follow" , async (req, res)=>{
+//   if (req.body.userId !== req.params.userId){
+//     try{
+//       const userToFollow = await User.findById(req.params.userId);
+//       const currentUser = await User.findById(req.body.userId);
+//       if (!userToFollow || !currentUser){
+//         console.log(" error, user doesn't exist")
+//       }
+
+//       currentUser.friends.push(userToFollow._id);
+//       userToFollow.friends.push(currentUser._id);
+//       await currentUser.save();
+//       await userToFollow.save();
+//       return res.send([currentUser,userToFollow]);
       
-    } catch (err) {
-      res.status(500).json(err);
-    }
-  } else {
-    res.status(403).json("you cannot follow yourself");
-  }
-});
+//     } catch (err) {
+//       res.status(500).json(err);
+//     }
+//   } else {
+//     res.status(403).json("you cannot follow yourself");
+//   }
+// });
+
+// router.put("/:userId/unfollow" , async (req, res)=>{
+//   if (req.body.userId !== req.params.userId){
+//     try{
+//       const userToUnFollow = await User.findById(req.params.userId);
+//       const currentUser = await User.findById(req.body.userId);
+//       if (!userToUnFollow || !currentUser){
+//       console.log("you're not following the user")
+//       }
+
+//       currentUser.friends.remove(userToUnFollow._id);
+//       await currentUser.save();
+//       return res.send(currentUser);
+      
+//     } catch (err) {
+//       res.status(500).json(err);
+//     }
+//   } else {
+//     res.status(403).json("you cannot follow yourself");
+//   }
+// });
 //* Get all users
 router.get("/", async (req, res) => {
   try {
@@ -116,7 +146,7 @@ router.get("/", async (req, res) => {
 });
 
 //* DELETE a single user from the database
-router.delete("/:userId", [auth, admin], async (req, res) => {
+router.delete("/:userId", [auth], async (req, res) => {
   try {
     const user = await User.findById(req.params.userId);
     if (!user)

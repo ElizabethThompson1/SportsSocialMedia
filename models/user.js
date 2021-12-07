@@ -3,6 +3,12 @@ const Joi = require("joi");
 const jwt = require("jsonwebtoken");
 const config = require("config");
 const { postSchema } = require('./Post');
+const { bool } = require("joi");
+
+const friendSchema = mongoose.Schema({
+  friendId: { type: mongoose.Schema.Types.ObjectId, required: true},
+  isAccepted: { type: String, default: 'PENDING' }
+})
 
 const userSchema = mongoose.Schema({
   name: { type: String, required: true, minLength: 5, maxLength: 50 },
@@ -13,7 +19,7 @@ const userSchema = mongoose.Schema({
     minLength: 2,
     maxLength: 255,
   },
-  friends: { type: [mongoose.Schema.Types.ObjectId], ref: 'Friends'},
+  friends: { type: [friendSchema], ref: 'Friends'},
   password: { type: String, required: true, minLength: 8, maxLength: 1024 },
   isAdmin: { type: Boolean, required: true },
   posts: { type: [ postSchema ]}
@@ -51,7 +57,13 @@ const validateLogin = (req) => {
 };
 
 const User = mongoose.model("User", userSchema);
+const FriendRequest = mongoose.model("FriendRequest", friendSchema);
+
+
+
+
 module.exports.User = User;
+module.exports.FriendRequest = FriendRequest;
 module.exports.userSchema = userSchema;
 module.exports.validateUser = validateUser;
 module.exports.validateLogin = validateLogin;
