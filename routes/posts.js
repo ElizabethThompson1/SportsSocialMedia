@@ -2,6 +2,7 @@ const router = require('express').Router();
 const {Post} = require("../models/Post");
 const { User } = require('../models/user');
 const auth = require('../middleware/auth');
+const {friends} = require("")
 
 
 router.post("/", [auth], async (req,res)=>{
@@ -39,6 +40,12 @@ router.put("/:postId", [auth], async (req, res) => {
     } catch (err) {
         res.status(500).json(err);
     }
+});
+
+router.delete("/:userId", [auth], async (req, res) => {
+    const user = await User.findById(req.params.userId);
+    await user.remove();
+    return res.send(user);
 });
 
 // router.delete("/:id", async (req, res) => {

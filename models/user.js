@@ -10,6 +10,8 @@ const friendSchema = mongoose.Schema({
   isAccepted: { type: String, default: 'PENDING' }
 })
 
+
+
 const userSchema = mongoose.Schema({
   name: { type: String, required: true, minLength: 5, maxLength: 50 },
   email: {
@@ -64,6 +66,7 @@ const FriendRequest = mongoose.model("FriendRequest", friendSchema);
 
 module.exports.User = User;
 module.exports.FriendRequest = FriendRequest;
+
 module.exports.userSchema = userSchema;
 module.exports.validateUser = validateUser;
 module.exports.validateLogin = validateLogin;

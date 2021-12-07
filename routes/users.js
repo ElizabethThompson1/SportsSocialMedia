@@ -85,9 +85,22 @@ router.post('/friends/:userToBefriendId/request', [auth], async (req, res) => {
 
 });
 
-// Write an endpoint where you can accept or decline a friend request
+router.put("/friends/:userToBefriendId/request", [auth], async (req, res) => {
+  try {
+    const signedInUser = await User.findById(req.user._id);
 
+    let friendRequest = signedInUser.posts.id(req.params.postId);
 
+    post = {...post, ...req.body};
+
+    await signedInUser.save()
+
+    return res.send(post);
+    
+} catch (err) {
+    res.status(500).json(err);
+}
+}); // Write an endpoint where you can accept or decline a friend request
 
 
 
