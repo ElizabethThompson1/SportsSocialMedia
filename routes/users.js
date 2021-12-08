@@ -1,10 +1,10 @@
 const { User, validateLogin, validateUser, FriendRequest } = require("../models/user");
-
 const auth = require("../middleware/auth");
 const admin = require("../middleware/admin");
 const bcrypt = require("bcrypt");
 const express = require("express");
 const router = express.Router();
+
 
 //* POST register a new user
 router.post("/register", async (req, res) => {
@@ -69,51 +69,57 @@ router.post("/login", async (req, res) => {
 //
 
 router.post('/friends/:userToBefriendId/request', [auth], async (req, res) => {
-  const signedInUser = await User.findById(req.user._id);
+  try{
+    const signedInUser = await User.findById(req.user._id);
 
-  const userToBefriend = await User.findById(req.params.userToBefriendId);
+    const userToBefriend = await User.findById(req.params.userToBefriendId);
 
-  const friendRequest = new FriendRequest({
-    friendId: signedInUser._id
-  });
-
-  userToBefriend.friends.push(friendRequest);
-
-  await userToBefriend.save()
-
-  return res.send(userToBefriend);
+    const friendRequest = new FriendRequest({
+      friendId: signedInUser._id
+    });
+  
+    userToBefriend.friends.push(friendRequest);
+  
+    await userToBefriend.save()
+  
+    return res.send(userToBefriend);
+  } catch (ex) {
+    console.log(ex);
+    return res.status(500).send(`Internal Server Error: ${ex}`);
+  }
 
 });
 
-router.put("/friends/:userToBefriendId/request", [auth], async (req, res) => {
+router.put("/friends/:friendRequestId/accept", [auth], async (req, res) => {
   try {
     const signedInUser = await User.findById(req.user._id);
 
-    let friendRequest = signedInUser.FriendRequest.id(req.params.userToBefriendId);
+    let friendRequest = signedInUser.friends.id(req.params.friendRequestId);
 
-    friendRequest.status = 'ACCEPTED';
+    friendRequest.isAccepted = 'ACCEPTED';
 
     await signedInUser.save()
 
-    return res.send(friend);
+    return res.send(signedInUser);
     
   } catch (err) {
+    console.log(err);
       res.status(500).json(err);
 }
 }); 
 
 
-router.put("/friends/:userToBefriendId/request", [auth], async (req, res) => {
+router.put("/friends/:friendRequestId/decline", [auth], async (req, res) => {
   try {
     const signedInUser = await User.findById(req.user._id);
 
-    let friendRequest = signedInUser.FriendRequest.id(req.params.userToBefriendId);
+    let friendRequest = signedInUser.friends.id(req.params.friendRequestId);
 
-    friendRequest.status = 'DECLINED';
+    friendRequest.isAccepted = 'DECLINED';
 
     await signedInUser.save()
 
-    return res.send(friend);
+    return res.send(signedInUser);
     
   } catch (err) {
       res.status(500).json(err);
@@ -177,7 +183,7 @@ router.get("/", async (req, res) => {
 });
 
 //* DELETE a single user from the database
-router.delete("/:userId", [auth], async (req, res) => {
+router.delete("/:userId", [auth, admin], async (req, res) => {
   try {
     const user = await User.findById(req.params.userId);
     if (!user)
