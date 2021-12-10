@@ -148,12 +148,41 @@ router.get("/current", [auth], async (req, res) => {
 
 router.get("/allfriends", [auth], async (req, res) => {
   try {
+
     const user = await User.findById(req.user._id);
+
+    const friendsObjects = []
+
+    for (let i =0; i< user.friends.length; i++){
+      if(user.friends[i].isAccepted == 'ACCEPTED'){
+        const aFriend = await User.findById(user.friends[i].friendId)
+        friendsObjects.push(aFriend);
+      }
+    }
     
-    return res.send(user.friends);
+    return res.send(friendsObjects);
+
   } catch (ex) {
     return res.status(500).send(`Internal Server Error: ${ex}`);
   }
+});
+    
+    // create an empty array
+
+    // loop over the user.firends array
+    
+      // for each friend make an findById call 
+    
+      // add that friend object ot the empty array
+    
+    // return the array that is holding all of the firend user objects
+
+
+
+router.get('/:userId', async (req, res) => {
+  const user = await User.findById(req.params.userId);
+  return res.send(user);
+
 });
 
 
