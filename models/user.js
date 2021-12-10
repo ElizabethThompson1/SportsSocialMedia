@@ -22,9 +22,9 @@ const userSchema = mongoose.Schema({
   },
   friends: { type: [friendSchema], ref: 'Friends'},
   password: { type: String, required: true, minLength: 8, maxLength: 1024 },
-  isAdmin: { type: Boolean, required: true },
+  isAdmin: { type: Boolean, default:false},
   posts: { type: [ postSchema ]}
-  
+
 });
 
 userSchema.methods.generateAuthToken = function () {
@@ -45,7 +45,6 @@ const validateUser = (user) => {
     name: Joi.string().min(5).max(50).required(),
     email: Joi.string().min(5).max(255).required().email(),
     password: Joi.string().min(5).max(1024).required(),
-    isAdmin: Joi.bool().required(),
   });
   return schema.validate(user);
 };

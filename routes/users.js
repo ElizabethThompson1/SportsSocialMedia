@@ -127,52 +127,6 @@ router.put("/friends/:friendRequestId/decline", [auth], async (req, res) => {
 }); 
 
 
-
-
-// router.put("/:userId/follow" , async (req, res)=>{
-//   if (req.body.userId !== req.params.userId){
-//     try{
-//       const userToFollow = await User.findById(req.params.userId);
-//       const currentUser = await User.findById(req.body.userId);
-//       if (!userToFollow || !currentUser){
-//         console.log(" error, user doesn't exist")
-//       }
-
-//       currentUser.friends.push(userToFollow._id);
-//       userToFollow.friends.push(currentUser._id);
-//       await currentUser.save();
-//       await userToFollow.save();
-//       return res.send([currentUser,userToFollow]);
-      
-//     } catch (err) {
-//       res.status(500).json(err);
-//     }
-//   } else {
-//     res.status(403).json("you cannot follow yourself");
-//   }
-// });
-
-// router.put("/:userId/unfollow" , async (req, res)=>{
-//   if (req.body.userId !== req.params.userId){
-//     try{
-//       const userToUnFollow = await User.findById(req.params.userId);
-//       const currentUser = await User.findById(req.body.userId);
-//       if (!userToUnFollow || !currentUser){
-//       console.log("you're not following the user")
-//       }
-
-//       currentUser.friends.remove(userToUnFollow._id);
-//       await currentUser.save();
-//       return res.send(currentUser);
-      
-//     } catch (err) {
-//       res.status(500).json(err);
-//     }
-//   } else {
-//     res.status(403).json("you cannot follow yourself");
-//   }
-// });
-//* Get all users
 router.get("/", async (req, res) => {
   try {
     const users = await User.find();
@@ -181,6 +135,28 @@ router.get("/", async (req, res) => {
     return res.status(500).send(`Internal Server Error: ${ex}`);
   }
 });
+
+router.get("/current", [auth], async (req, res) => {
+  try {
+    const user = await User.findById(req.user._id);
+
+    return res.send(user);
+  } catch (ex) {
+    return res.status(500).send(`Internal Server Error: ${ex}`);
+  }
+});
+
+router.get("/allfriends", [auth], async (req, res) => {
+  try {
+    const user = await User.findById(req.user._id);
+    
+    return res.send(user.friends);
+  } catch (ex) {
+    return res.status(500).send(`Internal Server Error: ${ex}`);
+  }
+});
+
+
 
 //* DELETE a single user from the database
 router.delete("/:userId", [auth, admin], async (req, res) => {
