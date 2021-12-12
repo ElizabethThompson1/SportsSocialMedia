@@ -14,7 +14,7 @@ const postSchema = new mongoose.Schema({
                 type:Array,
                 default: [],
             },     
-            creationDate: {type: Date, default: Date.now()}
+            creationDate: {type: String, default: new Date(Date.now()).toDateString()}
      },
             { timestamps: true }  
     );
