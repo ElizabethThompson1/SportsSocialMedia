@@ -6,6 +6,7 @@ const {friends} = require("./users");
 const { startSession } = require('mongoose');
 
 
+
 router.post("/", [auth], async (req,res)=>{
     try {
         const user = await User.findById(req.user._id);
@@ -48,6 +49,33 @@ router.delete("/:userId", [auth], async (req, res) => {
     return res.send(user);
 });
 
+router.put("/like", [auth], async (req,res)=>{
+    Post.findByIdAndUpdate(req.body.postId,{
+       $push:{likes:req.user._id}
+    },{ 
+        new:true
+    }).exec((err,result)=>{
+        if(err){
+            return res.status(422).json({error:err })
+        }else{
+            res.json(result)
+        }
+    })
+})
+router.put("/unlike", [auth], async (req,res)=>{
+    Post.findByIdAndUpdate(req.body.postId,{
+       $pull:{likes:req.user._id}
+    },{ 
+        new:true
+    }).exec((err,result)=>{
+        if(err){
+            return res.status(422).json({error:err })
+        }else{
+            res.json(result)
+        }
+    })
+})
 
 
 module.exports = router;
+
