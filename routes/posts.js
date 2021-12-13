@@ -26,6 +26,8 @@ router.post("/", [auth], async (req,res)=>{
 
 
 
+
+
 router.put("/:postId", [auth], async (req, res) => {
     try {
         const user = await User.findById(req.user._id);
